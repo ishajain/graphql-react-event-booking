@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import graphqlHttp from 'express-graphql'
 import { buildSchema } from 'graphql'
 const app = express()
-
+const events  = []
 
 app.use(bodyParser.json())
 
@@ -13,11 +13,29 @@ app.use(bodyParser.json())
 
 app.use('/graphql',graphqlHttp({
     schema: buildSchema(`
+        type Event {
+            _id: String!
+            title: String!
+            description: String!
+            price: Float!
+            date: String!
+        }
+
+        input EventInput {
+            title: String!
+            description: String!
+            price: Float!
+            date: String!
+        }
+
+
+
+
         type RootQuery {
-            events : [String!]!
+            events : [Event!]!
         }
         type RootMutation{
-            createEvent(name:String) : String
+            createEvent(eventType:EventInput) : Event
         }
         schema{
             query:RootQuery
@@ -26,10 +44,18 @@ app.use('/graphql',graphqlHttp({
     `),
     rootValue : {
         events : () => {
-            return ["Yoga","Cooking","Cycling"]
+            return events
         },
         createEvent: (args) => {
-            return args.name
+            const event = {
+                _id : Math.random().toString,
+                title: args.eventType.title,
+                description:args.eventType.description,
+                price:+args.eventType.price,
+                date:args.eventType.date
+            }
+            events.push(event)
+            return event
         }
     },
     graphiql:true
