@@ -2,8 +2,9 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import graphqlHttp from 'express-graphql'
 import { buildSchema } from 'graphql'
+import mongoose from 'mongoose'
+import Event from './models/Event'
 const app = express()
-const events  = []
 
 app.use(bodyParser.json())
 
@@ -11,7 +12,7 @@ app.use(bodyParser.json())
 //     res.send("Hello and welcome to GraphQL React app.")
 // })
 
-app.use('/graphql',graphqlHttp({
+app.use('/graphql', graphqlHttp({
     schema: buildSchema(`
         type Event {
             _id: String!
@@ -44,24 +45,50 @@ app.use('/graphql',graphqlHttp({
     `),
     rootValue : {
         events : () => {
-            return events
+            return Event.find().then(
+                    events => {
+                       return events.map(event =>{
+                            return {
+                                ...event._doc, _id: event._doc._id.toString()
+                            }
+                        })
+                    }
+            ).catch(error => {
+                throw error
+            })
         },
         createEvent: (args) => {
-            const event = {
-                _id : Math.random().toString,
+        
+            const event =  new Event({
                 title: args.eventType.title,
                 description:args.eventType.description,
                 price:+args.eventType.price,
-                date:args.eventType.date
-            }
-            events.push(event)
+                date:new Date(args.eventType.date)
+            })
+            event
+            .save()
+            .then(
+                result =>  {
+                    console.log({...result._doc})
+                    return {...result._doc}
+                }
+            )
+            .catch(error => {
+                res.status(422).send(error)
+                throw error
+            })
+
             return event
+            
         }
     },
     graphiql:true
 }))
 
 const PORT = process.env.PORT || 9000
-app.listen(PORT,() => {
-    console.log(`App is listening to port ${PORT}`)
-})
+
+mongoose.connect(process.env.MONGODB_URL).then(
+    app.listen(PORT,() => {
+        console.log(`App is listening to port ${PORT}`)
+    })
+).catch(error=>console.log(error))
