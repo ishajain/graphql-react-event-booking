@@ -4,9 +4,11 @@ import graphqlHttp from 'express-graphql'
 import graphqlschema from './graphql/schema'
 import graphqlresolver from './graphql/resolvers'
 import mongoose from 'mongoose'
-
+import isAuth from './middlewares/isAuth'
 const app = express()
 app.use(bodyParser.json())
+
+app.use(isAuth) // Allow the middleware with every request
 
 app.use('/graphql', graphqlHttp({
     schema: graphqlschema,

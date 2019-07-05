@@ -2,6 +2,11 @@ import { buildSchema } from 'graphql'
 
 
  module.exports = buildSchema(`
+                                type AuthData {
+                                    userId : ID!
+                                    token: String!
+                                    tokenExpiration : Int!
+                                }
                                 type Booking {
                                     _id: ID!
                                     event: Event!
@@ -41,6 +46,7 @@ import { buildSchema } from 'graphql'
                                     events : [Event!]!
                                     users :[User!]!
                                     bookings : [Booking!]!
+                                    login(email : String,password : String) : AuthData!
                                 }
                                 type RootMutation{
                                     createEvent(eventInput:EventInput) : Event
