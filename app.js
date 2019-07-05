@@ -16,7 +16,7 @@ app.use('/graphql', graphqlHttp({
     graphiql:true
 }))
 
-const PORT = process.env.PORT || 9000
+const PORT = process.env.PORT || 3000
 
 mongoose.connect(process.env.MONGODB_URL).then(
     app.listen(PORT,() => {
