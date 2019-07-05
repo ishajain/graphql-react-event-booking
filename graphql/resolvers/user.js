@@ -1,0 +1,31 @@
+import bcrypt from 'bcryptjs'
+import {transformUser} from './helper'
+import User from '../../models/User'
+
+module.exports = {
+   
+    createUser : async (args) => {
+        try{
+            const existingUser = await User.findOne({email : args.userInput.email });
+            if(existingUser) throw new Error("User already exists!!")
+            const hashedPassword = await bcrypt.hash(args.userInput.password,12);
+            const user = new User({
+                email: args.userInput.email,
+                password:hashedPassword
+            })
+            const newUser = await user.save(); 
+            return {...newUser._doc,password:null,_id:newUser.id}
+        }
+        catch{error => {throw error}}
+    },
+    users : async () => {
+        try {
+            const users = await User.find();
+            if(!users) throw new Error("No users found!!")
+            return users.map(user => transformUser(user))
+        }
+        catch{error => {throw error}}
+                        
+    },
+   
+}
