@@ -15,14 +15,14 @@ class App extends React.Component {
     
   };
 
-  login =  (token,userId ,tokenExpiration) => {
+  logIn =  (token,userId ,tokenExpiration) => {
     this.setState({
       userId : userId,
       token:token
     })
   }
 
-  logout = () => {
+  logOut = () => {
     this.setState({
       userId : null,
       token:null
@@ -34,14 +34,23 @@ class App extends React.Component {
       <div className="App">
         <BrowserRouter>
           <React.Fragment>
-            <AuthContext.Provider value = {{userId: this.state.userId, token: this.state.token, login:this.login, logOut:this.logout}}>
+            <AuthContext.Provider value = {{userId: this.state.userId, token: this.state.token, login:this.logIn, logOut:this.logOut}}>
               <MainNavigation></MainNavigation>
               <main className="main-content">
               <Switch>
-                <Redirect from="/" exact to="/auth"></Redirect>
-                <Route path="/auth" component={Auth}></Route>
-                <Route path="/events" component={Events}></Route>
-                <Route path="/bookings" component={Bookings}></Route>
+              {this.state.token && <Redirect from="/" to="/events" exact />}
+                {this.state.token && (
+                  <Redirect from="/auth" to="/events" exact />
+                )}
+                {!this.state.token && (
+                  <Route path="/auth" component={Auth} />
+                )}
+                <Route path="/events" component={Events} />
+                {this.state.token && (
+                  <Route path="/bookings" component={Bookings} />
+                )}
+                {!this.state.token && <Redirect to="/auth" exact />}
+
               </Switch>
               </main>
             </AuthContext.Provider>

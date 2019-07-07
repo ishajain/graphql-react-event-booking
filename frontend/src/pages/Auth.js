@@ -15,7 +15,6 @@ class Auth extends React.Component{
 static contextType = AuthContext 
 
 switchLogin =  () => {
-    console.log(this.state.isLogin);
   this.setState(prevState => ( {isLogin : !prevState.isLogin}))
    
 }
@@ -81,8 +80,9 @@ render(){
                 <input type="password" id="password" ref={this.passwordElement}></input>
                 </div>
                 <div className="form-actions">
-                    <button type="button" onClick={this.switchLogin}>{this.state.isLogin ? "SignUp" : "Login"}</button>
+                   
                     <button type="submit">Submit</button>
+                    <button type="button" onClick={this.switchLogin}>{this.state.isLogin ? "SignUp" : "Login"}</button>
                 </div>
             </form>    
 )
