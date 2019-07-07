@@ -1,5 +1,6 @@
 import React from 'react'
 import './Auth.css'
+import AuthContext from '../context/auth-context';
 class Auth extends React.Component{
     constructor(props) {
         super(props);
@@ -10,6 +11,9 @@ class Auth extends React.Component{
  state = {
      isLogin : false
  }
+
+static contextType = AuthContext 
+
 switchLogin =  () => {
     console.log(this.state.isLogin);
   this.setState(prevState => ( {isLogin : !prevState.isLogin}))
@@ -56,7 +60,12 @@ submitForm =(event) => {
             return res.json()
         }
     )
-    .then(res => console.log(res))
+    .then(response => {
+        if(response.data.login.token!=null)
+        {
+            this.context.login(response.data.login.token,response.data.login.userId,response.data.login.tokenExpiration)
+        }
+    })
     .catch(error => console.log(error))
 
 }
