@@ -34,7 +34,7 @@ class App extends React.Component {
       <div className="App">
         <BrowserRouter>
           <React.Fragment>
-            <AuthContext.Provider value = {{userId: this.state.userId, token: this.state.token, login:this.logIn, logOut:this.logOut}}>
+            <AuthContext.Provider value = {{userId: this.state.userId, token: this.state.token, logIn:this.logIn, logOut:this.logOut}}>
               <MainNavigation></MainNavigation>
               <main className="main-content">
               <Switch>
