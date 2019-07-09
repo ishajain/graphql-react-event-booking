@@ -62,7 +62,7 @@ submitForm =(event) => {
     .then(response => {
         if(response.data.login.token!=null)
         {
-            console.log(response.data)
+            //console.log(response.data)
             this.context.logIn(response.data.login.token,response.data.login.userId,response.data.login.tokenExpiration)
         }
     })

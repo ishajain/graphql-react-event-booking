@@ -1,6 +1,6 @@
 import User from '../../models/User'
 import Event from '../../models/Event'
-
+import {dateToString} from '../../helpers/date'
 const userDetailsById =  async userId =>{
     try{
         const user =  await User.findById(userId)
@@ -25,7 +25,7 @@ const eventsById = async eventsId => {
     catch{error => {throw error}}
 }
 const transformEvent = event => {
-    return {...event._doc,_id:event.id, creator: userDetailsById.bind(this,event._doc.creator)}
+    return {...event._doc,_id:event.id, date: dateToString(event._doc.date),creator: userDetailsById.bind(this,event._doc.creator)}
 }
 
 const transformUser = user => {

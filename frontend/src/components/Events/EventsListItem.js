@@ -2,8 +2,7 @@ import React from 'react'
 import './EventsListItem.css'
 
 
-const EventListItem = ({event:{title},event:{price},event:{description}, event:{date},event:{creator : {email,_id}},userId}) => {
-    console.log("UserId:" + userId + "id:" + _id)
+const EventListItem = ({event:{title},event:{price}, event:{_id} ,event:{date},event:{creator : {email}},userId,onViewDetail}) => {
     return (
          <li  className="events__list-item">
         <div>
@@ -13,7 +12,7 @@ const EventListItem = ({event:{title},event:{price},event:{description}, event:{
           </h2>
         </div>
         <div>
-         {userId === _id ? <p>You are the owner of this event</p> : <button className="btn" >View Details</button>}
+         {userId === _id ? <p>You are the owner of this event</p> : <button className="btn" onClick={() => onViewDetail(_id)}>View Details</button>}
         </div>
       </li>
 )

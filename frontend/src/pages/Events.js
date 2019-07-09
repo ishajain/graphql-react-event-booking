@@ -9,7 +9,8 @@ class Auth extends React.Component{
     state = {
         events: [],
         creating: false,
-        isLoading : false
+        isLoading : false,
+        selectedEvent : null
     };
     static contextType = AuthContext
     constructor(props){
@@ -20,8 +21,15 @@ class Auth extends React.Component{
         this.dateElement = React.createRef();
     }
 
+    onViewDetail = eventId => {
+        const selectedEvent = this.state.events.find((event) => event._id === eventId )
+        this.setState({
+            selectedEvent
+        })
+    }
+
     onModalCancel = () => {
-        this.setState({ creating: false });
+        this.setState({ creating: false, selectedEvent : null });
 
     }
 
@@ -33,7 +41,6 @@ class Auth extends React.Component{
     const date = this.dateElement.current.value
     if(title.trim().length === 0 || description.trim().length === 0 || price <= 0 || date.trim().length === 0) return;
     const event  = {title,description,price,date}
-    console.log(event)
 
     const  requestBody = {
         
@@ -84,7 +91,7 @@ class Auth extends React.Component{
                                 title,
                                 description,
                                 price,
-                                date
+                                date,
                                 creator
                                 {   _id,
                                      email
@@ -117,6 +124,7 @@ class Auth extends React.Component{
     componentDidMount() {
         this.fetchEvents()
     }
+    onModalBooking = () => {}
 
     render(){
 
@@ -146,13 +154,22 @@ class Auth extends React.Component{
                                        </form>
                                     </Modal>
            }
+           {this.state.selectedEvent && <Modal title={this.state.selectedEvent.title} canCancel  
+                                        onModalCancel={this.onModalCancel} 
+                                        onModalBooking={this.onModalBooking}>
+                                       <h1>{this.state.selectedEvent.title}</h1>
+                                       <h2>{this.state.selectedEvent.price} - {this.state.selectedEvent.date}</h2>
+                                       <p>{this.state.selectedEvent.description}</p>
+                                    </Modal>
+
+           }
            {this.context.token && <div className="events-control">
              <p>Share your own events!!</p>
              <button className="btn" onClick={this.onCreateEventClick}>Create Event</button>
            </div>
            }
            { this.state.events.length > 0 && !this.state.isLoading ?
-                <EventsList events={this.state.events} userId={this.context.userId}/> : <Spinner />
+                <EventsList events={this.state.events} userId={this.context.userId} onViewDetail={this.onViewDetail}/> : <Spinner />
            }
            
        </>
