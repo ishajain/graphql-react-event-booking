@@ -23,6 +23,7 @@ class Auth extends React.Component{
 
     onViewDetail = eventId => {
         const selectedEvent = this.state.events.find((event) => event._id === eventId )
+        console.log(selectedEvent)
         this.setState({
             selectedEvent
         })
@@ -50,7 +51,7 @@ class Auth extends React.Component{
                         description:"${event.description}",
                         price: ${event.price},
                         date:"${event.date}"
-                }){_id,title,description,price,creator { _id,email}}
+                }){_id,title,description,price,date,creator { _id,email}}
               }`
         }
     
@@ -70,7 +71,14 @@ class Auth extends React.Component{
         }
     )
     .then(response => {
-        console.log(response.data)
+        const event  = {...response.data.createEvent}
+        console.log(event)
+        this.setState(prevState => {
+          console.log([...prevState.events,event])
+          return { events: [...prevState.events,event] };
+         
+        })
+        
     })
     .catch(error => console.log(error))
     }
@@ -124,16 +132,49 @@ class Auth extends React.Component{
     componentDidMount() {
         this.fetchEvents()
     }
-    onModalBooking = () => {}
+    onModalBooking = () => {
+        this.setState({ isLoading : true})
+        const requestBody = {
+            query:` mutation{
+                bookEvent(eventId:"${this.state.selectedEvent._id}"){
+                  createdAt, updatedAt, _id
+                }
+              }
+              
+                 `
+        }
+        fetch("http://localhost:8000/graphql", {
+            method: "POST",
+            body: JSON.stringify(requestBody),
+            headers : {
+                "Content-Type" : "application/json",
+                "Authorization" : `Bearer ${this.context.token}`
+            }
+        })
+        .then( res =>
+            {
+                if (res.status !== 200 && res.status !== 201) throw new Error("Failed")
+                return res.json()
+            }
+        )
+        .then(response => {
+            console.log(response.data)
+           this.setState({events: response.data.events, isLoading : false})
+
+        })
+        .catch(error => console.log(error))
+
+    }
 
     render(){
 
     return(
         <>
-           {this.state.creating && <Backdrop ></Backdrop>}
+           {(this.state.creating || this.state.selectedEvent) && <Backdrop ></Backdrop>}
            {this.state.creating && <Modal title="Add Event" canCancel canConfirm 
                                         onModalCancel={this.onModalCancel} 
-                                        onModalConfirm={this.onModalConfirm}>
+                                        onModalConfirm={this.onModalConfirm}
+                                        confirmText="Add">
                                        <form className="form-control">
                                            <div>
                                                <label htmlFor="title">Title</label>
@@ -154,11 +195,12 @@ class Auth extends React.Component{
                                        </form>
                                     </Modal>
            }
-           {this.state.selectedEvent && <Modal title={this.state.selectedEvent.title} canCancel  
+           {this.state.selectedEvent && <Modal title={this.state.selectedEvent.title} canCancel  canConfirm
                                         onModalCancel={this.onModalCancel} 
-                                        onModalBooking={this.onModalBooking}>
+                                        onModalConfirm={this.onModalBooking}
+                                             confirmText="Book">
                                        <h1>{this.state.selectedEvent.title}</h1>
-                                       <h2>{this.state.selectedEvent.price} - {this.state.selectedEvent.date}</h2>
+                                       <h2>{this.state.selectedEvent.price} -  {new Date(this.state.selectedEvent.date).toLocaleDateString()}</h2>
                                        <p>{this.state.selectedEvent.description}</p>
                                     </Modal>
 
